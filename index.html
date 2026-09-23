@@ -1,1 +1,746 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
+<title>星域小世界</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: Arial, "Noto Sans TC", sans-serif;
+    background: #090b18;
+    color: white;
+    overflow: hidden;
+}
+
+/* 整個手機遊戲 */
+.game {
+    width: 100vw;
+    height: 100vh;
+    max-width: 500px;
+    margin: auto;
+    position: relative;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 20% 15%, #394579 0%, transparent 25%),
+        radial-gradient(circle at 80% 30%, #39285f 0%, transparent 25%),
+        linear-gradient(#11162d, #080a16);
+}
+
+/* 頂部資訊 */
+.top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 18px 18px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 20;
+}
+
+.logo {
+    font-size: 20px;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+.coins {
+    background: rgba(0,0,0,.35);
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 20px;
+    padding: 8px 13px;
+    font-size: 14px;
+}
+
+/* 房間 */
+.room {
+    position: absolute;
+    top: 70px;
+    left: 12px;
+    right: 12px;
+    bottom: 90px;
+    border-radius: 25px;
+    overflow: hidden;
+    background: #202640;
+    box-shadow: 0 15px 40px rgba(0,0,0,.35);
+}
+
+/* 牆壁 */
+.wall {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 67%;
+    background:
+        linear-gradient(
+            90deg,
+            rgba(255,255,255,.025) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            rgba(255,255,255,.025) 1px,
+            transparent 1px
+        ),
+        linear-gradient(135deg, #31385b, #202642);
+    background-size: 35px 35px;
+}
+
+/* 地板 */
+.floor {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 35%;
+    background:
+        repeating-linear-gradient(
+            90deg,
+            #171a2c 0px,
+            #171a2c 45px,
+            #20243a 46px,
+            #20243a 48px
+        );
+    transform: perspective(400px) rotateX(2deg);
+}
+
+/* 窗戶 */
+.window {
+    position: absolute;
+    top: 65px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 150px;
+    height: 105px;
+    border: 8px solid #15182a;
+    border-radius: 12px;
+    background:
+        radial-gradient(circle at 70% 25%, #fff8bc 0 4px, transparent 5px),
+        radial-gradient(circle at 30% 40%, #dce7ff 0 2px, transparent 3px),
+        radial-gradient(circle at 55% 70%, #fff 0 2px, transparent 3px),
+        linear-gradient(#151c43, #5a65a0);
+    box-shadow: 0 0 25px rgba(119,144,255,.3);
+}
+
+.window::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 3px;
+    height: 100%;
+    background: #15182a;
+}
+
+.window::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 100%;
+    height: 3px;
+    background: #15182a;
+}
+
+/* 床 */
+.bed {
+    position: absolute;
+    left: 25px;
+    bottom: 60px;
+    width: 125px;
+    height: 75px;
+    border-radius: 12px;
+    background: #7b78b8;
+    box-shadow: 0 8px 0 #454365;
+}
+
+.bed::before {
+    content: "";
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: 48px;
+    height: 30px;
+    border-radius: 8px;
+    background: #d8dcff;
+}
+
+.bed::after {
+    content: "✦";
+    position: absolute;
+    right: 20px;
+    top: 18px;
+    color: #eeeaff;
+    font-size: 20px;
+}
+
+/* 書桌 */
+.desk {
+    position: absolute;
+    right: 22px;
+    bottom: 70px;
+    width: 125px;
+    height: 55px;
+    border-radius: 8px;
+    background: #634e70;
+    box-shadow: 0 8px 0 #382d42;
+}
+
+.monitor {
+    position: absolute;
+    width: 58px;
+    height: 40px;
+    top: -48px;
+    left: 33px;
+    border: 5px solid #171928;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #526eff, #9a5cff);
+}
+
+.monitor::after {
+    content: "";
+    position: absolute;
+    bottom: -14px;
+    left: 19px;
+    width: 12px;
+    height: 10px;
+    background: #171928;
+}
+
+/* 植物 */
+.plant {
+    position: absolute;
+    right: 30px;
+    top: 30px;
+    font-size: 48px;
+    filter: drop-shadow(0 5px 5px rgba(0,0,0,.3));
+}
+
+/* 玩家 */
+.player {
+    position: absolute;
+    left: 50%;
+    bottom: 105px;
+    transform: translateX(-50%);
+    width: 52px;
+    height: 90px;
+    z-index: 10;
+    transition: left .15s, bottom .15s;
+}
+
+/* 頭 */
+.head {
+    position: absolute;
+    top: 0;
+    left: 11px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #f0c2a5;
+    box-shadow: inset -4px -3px 0 rgba(0,0,0,.08);
+}
+
+/* 頭髮 */
+.hair {
+    position: absolute;
+    top: -3px;
+    left: 8px;
+    width: 36px;
+    height: 18px;
+    border-radius: 20px 20px 5px 5px;
+    background: #25243b;
+}
+
+/* 身體 */
+.body {
+    position: absolute;
+    top: 28px;
+    left: 7px;
+    width: 38px;
+    height: 48px;
+    border-radius: 12px 12px 8px 8px;
+    background: linear-gradient(#8b83dc, #514ca2);
+}
+
+/* 腿 */
+.leg1,
+.leg2 {
+    position: absolute;
+    top: 70px;
+    width: 12px;
+    height: 25px;
+    border-radius: 8px;
+    background: #202236;
+}
+
+.leg1 {
+    left: 12px;
+}
+
+.leg2 {
+    right: 12px;
+}
+
+/* 提示 */
+.hint {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    color: rgba(255,255,255,.6);
+}
+
+/* 底部選單 */
+.bottom {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    right: 12px;
+    height: 65px;
+    border-radius: 20px;
+    background: rgba(20,23,45,.92);
+    border: 1px solid rgba(255,255,255,.1);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    z-index: 30;
+    backdrop-filter: blur(10px);
+}
+
+.menu-btn {
+    border: 0;
+    background: transparent;
+    color: #9fa4c4;
+    font-size: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.menu-btn span {
+    font-size: 22px;
+}
+
+.menu-btn.active {
+    color: white;
+}
+
+/* 頁面 */
+.page {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 20% 10%, #343d76, transparent 30%),
+        linear-gradient(#10152d, #080a16);
+    z-index: 50;
+    padding: 80px 20px 100px;
+    display: none;
+    overflow-y: auto;
+}
+
+.page.show {
+    display: block;
+}
+
+.page-title {
+    font-size: 25px;
+    margin-bottom: 20px;
+}
+
+.card {
+    background: rgba(255,255,255,.07);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 18px;
+    padding: 18px;
+    margin-bottom: 14px;
+}
+
+.shop-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.shop-icon {
+    font-size: 40px;
+}
+
+.buy {
+    border: 0;
+    border-radius: 12px;
+    padding: 9px 15px;
+    background: #6d67d8;
+    color: white;
+}
+
+.back {
+    position: absolute;
+    top: 22px;
+    right: 20px;
+    border: 0;
+    background: rgba(255,255,255,.1);
+    color: white;
+    border-radius: 12px;
+    padding: 8px 13px;
+}
+
+/* 遊戲頁 */
+.game-area {
+    height: 300px;
+    border-radius: 20px;
+    background:
+        radial-gradient(circle at 30% 20%, #4d5eb0, transparent 5%),
+        radial-gradient(circle at 70% 60%, #8b58c8, transparent 5%),
+        #171b38;
+    position: relative;
+    overflow: hidden;
+}
+
+.star {
+    position: absolute;
+    font-size: 30px;
+    animation: float 1.5s infinite alternate;
+}
+
+@keyframes float {
+    from {
+        transform: translateY(0);
+    }
+    to {
+        transform: translateY(-10px);
+    }
+}
+
+.score {
+    text-align: center;
+    margin: 15px;
+    font-size: 20px;
+}
+
+/* 個人頁 */
+.avatar {
+    width: 90px;
+    height: 90px;
+    margin: 0 auto 15px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #7770df, #b36bea);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 45px;
+}
+
+.name {
+    text-align: center;
+    font-size: 22px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="game">
+
+    <!-- 頂部 -->
+    <div class="top">
+        <div class="logo">✦ 星域小世界</div>
+        <div class="coins">⭐ <span id="coins">1000</span></div>
+    </div>
+
+    <!-- 房間 -->
+    <div class="room" id="room">
+
+        <div class="wall"></div>
+        <div class="floor"></div>
+
+        <div class="window"></div>
+
+        <div class="plant">🌿</div>
+
+        <div class="bed"></div>
+
+        <div class="desk">
+            <div class="monitor"></div>
+        </div>
+
+        <!-- 玩家 -->
+        <div class="player" id="player">
+            <div class="hair"></div>
+            <div class="head"></div>
+            <div class="body"></div>
+            <div class="leg1"></div>
+            <div class="leg2"></div>
+        </div>
+
+        <div class="hint">
+            點擊畫面移動角色
+        </div>
+
+    </div>
+
+    <!-- 底部 -->
+    <div class="bottom">
+
+        <button class="menu-btn active" onclick="openPage('home')">
+            <span>🏠</span>
+            世界
+        </button>
+
+        <button class="menu-btn" onclick="openPage('shop')">
+            <span>🛍️</span>
+            商店
+        </button>
+
+        <button class="menu-btn" onclick="openPage('gamePage')">
+            <span>🎮</span>
+            遊戲
+        </button>
+
+        <button class="menu-btn" onclick="openPage('profile')">
+            <span>👤</span>
+            我的
+        </button>
+
+    </div>
+
+    <!-- 商店 -->
+    <div class="page" id="shop">
+
+        <button class="back" onclick="closePage()">返回</button>
+
+        <div class="page-title">🛍️ 星域商店</div>
+
+        <div class="card shop-item">
+            <div>
+                <div class="shop-icon">🪴</div>
+                <b>星光植物</b>
+                <p>⭐ 100</p>
+            </div>
+
+            <button class="buy" onclick="buyItem(100)">
+                購買
+            </button>
+        </div>
+
+        <div class="card shop-item">
+            <div>
+                <div class="shop-icon">🛋️</div>
+                <b>柔軟沙發</b>
+                <p>⭐ 250</p>
+            </div>
+
+            <button class="buy" onclick="buyItem(250)">
+                購買
+            </button>
+        </div>
+
+        <div class="card shop-item">
+            <div>
+                <div class="shop-icon">💡</div>
+                <b>星月燈</b>
+                <p>⭐ 400</p>
+            </div>
+
+            <button class="buy" onclick="buyItem(400)">
+                購買
+            </button>
+        </div>
+
+    </div>
+
+    <!-- 小遊戲 -->
+    <div class="page" id="gamePage">
+
+        <button class="back" onclick="closePage()">返回</button>
+
+        <div class="page-title">🎮 接星星</div>
+
+        <div class="score">
+            分數：<span id="score">0</span>
+        </div>
+
+        <div class="game-area" id="gameArea">
+
+            <div class="star"
+                 style="left:20%;top:30%;"
+                 onclick="getStar(this)">
+                ⭐
+            </div>
+
+            <div class="star"
+                 style="left:65%;top:60%;"
+                 onclick="getStar(this)">
+                ⭐
+            </div>
+
+            <div class="star"
+                 style="left:45%;top:15%;"
+                 onclick="getStar(this)">
+                ⭐
+            </div>
+
+        </div>
+
+        <div class="card">
+            點擊星星可以獲得分數。
+            <br><br>
+            每顆星星可以獲得 10 ⭐ 星幣。
+        </div>
+
+    </div>
+
+    <!-- 個人 -->
+    <div class="page" id="profile">
+
+        <button class="back" onclick="closePage()">返回</button>
+
+        <div class="page-title">👤 我的</div>
+
+        <div class="card">
+
+            <div class="avatar">
+                🧑
+            </div>
+
+            <div class="name" id="playerName">
+                星域居民
+            </div>
+
+        </div>
+
+        <div class="card">
+            ⭐ 星幣：
+            <b id="profileCoins">1000</b>
+        </div>
+
+        <div class="card">
+            🏆 成就：0
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+let coins = 1000;
+let score = 0;
+
+const player = document.getElementById("player");
+const room = document.getElementById("room");
+
+/* 開啟頁面 */
+function openPage(id) {
+
+    document.querySelectorAll(".page")
+        .forEach(page => page.classList.remove("show"));
+
+    document.getElementById(id)
+        .classList.add("show");
+
+}
+
+/* 返回 */
+function closePage() {
+
+    document.querySelectorAll(".page")
+        .forEach(page => page.classList.remove("show"));
+
+}
+
+/* 點房間移動角色 */
+room.addEventListener("click", function(event) {
+
+    if (
+        event.target.classList.contains("bed") ||
+        event.target.classList.contains("desk") ||
+        event.target.classList.contains("monitor") ||
+        event.target.classList.contains("window") ||
+        event.target.classList.contains("plant")
+    ) {
+        return;
+    }
+
+    const rect = room.getBoundingClientRect();
+
+    let x = event.clientX - rect.left;
+
+    const minX = 30;
+    const maxX = rect.width - 80;
+
+    x = Math.max(minX, Math.min(x, maxX));
+
+    player.style.left = x + "px";
+
+});
+
+/* 商店購買 */
+function buyItem(price) {
+
+    if (coins < price) {
+        alert("星幣不夠！");
+        return;
+    }
+
+    coins -= price;
+
+    updateCoins();
+
+    alert("購買成功！");
+}
+
+/* 接星星 */
+function getStar(star) {
+
+    score += 10;
+
+    coins += 10;
+
+    document.getElementById("score").textContent = score;
+
+    updateCoins();
+
+    star.style.display = "none";
+
+    setTimeout(() => {
+
+        star.style.display = "block";
+
+        star.style.left =
+            Math.random() * 80 + 10 + "%";
+
+        star.style.top =
+            Math.random() * 75 + 10 + "%";
+
+    }, 600);
+
+}
+
+/* 更新星幣 */
+function updateCoins() {
+
+    document.getElementById("coins")
+        .textContent = coins;
+
+    document.getElementById("profileCoins")
+        .textContent = coins;
+
+}
+
+</script>
+
+</body>
+</html>
